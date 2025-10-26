@@ -135,23 +135,23 @@ class Account(Base):
 
 ## 📁 Project Structure
 ---
-File: app/core/config.py
+File: app/core_config.py
 
-File: app/db/base.py
+File: app/db_base.py
 
-File: app/db/models.py
+File: app/db_models.py
 
-File: app/db/session.py
+File: app/db_session.py
 
-File: app/db/crud.py
+File: app/db_crud.py
 
 File: app/schemas.py
 
-File: app/services/account_service.py
+File: app/account_service.py
 
-File: app/api/v1/accounts.py
+File: app/api_accounts.py
 
-File: app/main.py (The final, corrected entry point)
+File: app/main.py 
 
 ---
 
