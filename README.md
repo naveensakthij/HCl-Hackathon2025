@@ -61,7 +61,7 @@ Each account is assigned a unique account number and validated based on business
 ## 📬 API Endpoint
 
 ### POST `app/api_accounts.py`
-\text{POST } \text{[http://127.0.0.1:8000/api/v1/accounts/](http://127.0.0.1:8000/api/v1/accounts/)}
+[\text{POST } \text{[http://127.0.0.1:8000/api/v1/accounts/](http://127.0.0.1:8000/api/v1/accounts/)}](http://127.0.0.1:8000/docs#/accounts/create_account_endpoint_api_v1_accounts__post)
 
 Create a new bank account.
 
