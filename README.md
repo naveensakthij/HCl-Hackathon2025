@@ -193,6 +193,8 @@ Replace `yourpassword` with your actual PostgreSQL password.
 
 ```bash
 uvicorn app.main:app --reload
+or
+python -m uvicorn app.main:app --reload
 ```
 
 Visit: [http://localhost:8000/docs](http://localhost:8000/docs)
