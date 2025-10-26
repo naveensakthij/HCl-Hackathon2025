@@ -1,14 +1,12 @@
-# app/api_accounts.py (Corrected Code)
+
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from .db_session import get_db
 
-# FIX: Use the dot (.) to indicate a module in the same package (the 'app' folder)
 from .schemas import AccountCreate, AccountResponse 
 from .services_account import create_new_bank_account 
 
-# The router object
 router = APIRouter()
 
 @router.post("/", response_model=AccountResponse, status_code=status.HTTP_201_CREATED)

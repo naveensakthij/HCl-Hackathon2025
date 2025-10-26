@@ -1,76 +1,46 @@
 # app/schemas.py
 
-from pydantic import BaseModel, Field, model_validator
-from typing import Optional, Any
+from typing import Optional, Literal
 from datetime import datetime
+from pydantic import BaseModel, field_validator, Field
 from decimal import Decimal
 
-# --- Request Schemas ---
-class AccountCreateBase(BaseModel):
-    """Base schema for creating a new account."""
-    
-    # Using standard 'str' and Field for constraints (Pydantic V2)
-    customer_id: str = Field(
-        ..., 
-        min_length=5, 
-        max_length=50, 
-        description="Unique ID for the customer."
-    )
-    account_type: str = Field(
-        ..., 
-        description="Type of account: 'savings', 'current', or 'fd'."
-    )
-    initial_deposit: Decimal = Field(
-        ..., 
-        gt=0, 
-        max_digits=12, 
-        decimal_places=2, 
-        description="Initial deposit amount (must be > 0)."
-    )
-    currency: str = Field(
-        "INR", 
-        min_length=3, 
-        max_length=3
-    )
+# Define supported account types
+AccountType = Literal["savings", "current", "fd"]
 
-class AccountCreate(AccountCreateBase):
-    """Schema for the incoming POST request."""
-    
-    maturity_months: Optional[int] = Field(
-        None, 
-        ge=1, 
-        description="Maturity period in months (only for 'fd' accounts)."
-    )
+class AccountCreate(BaseModel):
+    customer_id: str = Field(..., max_length=50)
+    account_type: AccountType
+    # Deposit must be greater than zero and have 2 decimal places
+    initial_deposit: Decimal = Field(..., gt=0, decimal_places=2) 
+    currency: str = Field("INR", max_length=3)
+    # Optional field, but required conditionally for FD, must be >= 1
+    maturity_months: Optional[int] = Field(None, ge=1, description="Required for 'fd' account type.")
 
-    @model_validator(mode='before')
+    # Pydantic Validator to enforce FD rule
+    @field_validator('maturity_months', mode='before')
     @classmethod
-    def validate_account_type(cls, data: Any) -> Any:
-        """Ensures the account type is one of the supported values."""
-        if not isinstance(data, dict):
-            return data
-            
-        account_type = data.get('account_type')
-        if account_type and account_type not in ('savings', 'current', 'fd'):
-            raise ValueError(
-                'Invalid account_type. Must be "savings", "current", or "fd".'
-            )
-        return data
-
-# --- Response Schema ---
-class AccountResponse(BaseModel):
-    """Schema for the outgoing JSON response."""
+    def check_maturity_for_fd(cls, v, info):
+        # We check the account_type provided in the entire request data (info.data)
+        values = info.data
+        
+        if values.get('account_type') == 'fd':
+            # v is None if maturity_months was completely omitted
+            if v is None or v == 0 or v < 1: 
+                raise ValueError('FD accounts require maturity_months (minimum 1 month).')
+        
+        return v
     
-    id: int 
+    model_config = {'from_attributes': True}
+
+# Response Schema (Used in api_accounts.py)
+class AccountResponse(BaseModel):
+    account_id: int
     account_number: str
     customer_id: str
-    account_type: str
-    balance: Decimal = Field(max_digits=12, decimal_places=2)
+    account_type: AccountType
+    balance: Decimal
     currency: str
     created_at: datetime
-    # Matches the renamed field in the SQLAlchemy model
-    extra_data: Optional[Any] 
-
-    # Pydantic V2 configuration for reading data from SQLAlchemy models (ORM)
-    model_config = {
-        'from_attributes': True,
-    }
+    
+    model_config = {'from_attributes': True}

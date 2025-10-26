@@ -1,11 +1,10 @@
-# app/main.py (FINAL VERSION)
+# app/main.py 
 
 from fastapi import FastAPI
 from .db_base import Base
 from .db_session import engine
 
-# ⚠️ CRITICAL FIX: Explicitly import the models file to guarantee
-#    SQLAlchemy knows about the table definitions during startup.
+
 from . import db_models 
 
 # The router import
